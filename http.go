@@ -46,7 +46,7 @@ func (h *httpService) run() error {
 	var listenAddress = fmt.Sprintf("%s:%d", h.HTTPConfig.Host, h.HTTPConfig.Port)
 	log.Printf("service listening on %s", listenAddress)
 	return http.ListenAndServe(listenAddress, cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:9000"},
+		AllowedOrigins: []string{"http://localhost:9002"},
 		AllowedHeaders: []string{"*"},
 	}).Handler(h.router))
 }
