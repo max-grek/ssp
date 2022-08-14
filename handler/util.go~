@@ -1,0 +1,36 @@
+package handler
+
+import (
+	"encoding/json"
+	"net/http"
+)
+
+type customHttpResponse struct {
+	StatusCode int         `json:"statusCode"`
+	Message    interface{} `json:"message"`
+}
+
+func responseBuilder(w http.ResponseWriter, code int, msg ...interface{}) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(code)
+
+	if msg == nil || code == http.StatusInternalServerError {
+		return
+	}
+
+	resp := customHttpResponse{
+		StatusCode: code,
+	}
+
+	switch v := msg[0].(type) {
+	case error:
+		resp.Message = v.Error()
+	case []byte:
+		resp.Message = string(v)
+	default:
+		resp.Message = v
+	}
+
+	b, _ := json.Marshal(resp)
+	w.Write(b)
+}

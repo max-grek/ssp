@@ -1,0 +1,59 @@
+package tx
+
+import (
+	"context"
+	"database/sql"
+	"test-assignment-cookie-sync/connector/internal/cookie/query"
+)
+
+type Txr interface {
+	TestTx(ctx context.Context, str string) error
+}
+
+type TXWrapper struct {
+	query.Querier
+	conn *sql.DB
+}
+
+func New(q *query.QWrapper, conn *sql.DB) *TXWrapper {
+	return &TXWrapper{q, conn}
+}
+
+func (w TXWrapper) TestTx(ctx context.Context, str string) error {
+	return w.execTx(ctx, func(q query.Querier) error {
+		return w.Querier.Test3(str)
+	})
+}
+
+//func (d CookieTxs) PersistAccountTx(ctx context.Context, account *entity.Account) error {
+//	return d.execTx(ctx, "userdata", func(q query.Querier) error {
+//		return q.PersistAccount(ctx, account)
+//	})
+//}
+//
+//// UpdateAccountTx create transaction for update the data
+//func (d CookieTxs) UpdateAccountTx(ctx context.Context, account *entity.Account, uuid string) error {
+//	return d.execTx(ctx, "userdata", func(q queries.Querier) error {
+//		if err := q.UpdateAccount(ctx, account); err != nil {
+//			return err
+//		}
+//		return q.PersistAccountHistory(ctx, account, uuid)
+//	})
+//}
+//
+func (w TXWrapper) execTx(ctx context.Context, fn query.QueryTxFunc) error {
+	//tx, err := w.conn.BeginTx(ctx, nil)
+	//if err != nil {
+	//	return err
+	//}
+	//fmt.Println("2")
+	query.UpgradeToTx(nil, w.Querier)
+	if err := fn(w.Querier); err != nil {
+		//	if rbErr := tx.Rollback(); rbErr != nil {
+		//	return fmt.Errorf("tx err: %v, rb err: %v", err, rbErr)
+		//}
+		return err
+	}
+	return nil
+	//return tx.Commit()
+}

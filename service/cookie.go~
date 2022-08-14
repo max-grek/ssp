@@ -1,0 +1,38 @@
+package service
+
+import (
+	"context"
+	"net/http"
+	"test-assignment-cookie-sync/connector"
+
+	satoriuuid "github.com/satori/go.uuid"
+)
+
+const NOTIF = ""
+
+type Notif struct {
+	name string
+	conn connector.DB
+}
+
+func New(name string, conn connector.DB) *Notif {
+	switch name {
+	case NOTIF:
+		return &Notif{name: NOTIF, conn: conn}
+	default:
+		return nil
+	}
+}
+
+func (s *Notif) ProcessNotify(ctx context.Context, cookieId string) error {
+	return s.conn.Cookie().PersistNotify(ctx, satoriuuid.NewV4().String(), cookieId)
+}
+
+func (s *Notif) ProcessCookie(ctx context.Context) (*http.Cookie, error) {
+	cid := satoriuuid.NewV4().String()
+	return &http.Cookie{
+		Name:   cid,
+		Value:  "0.0.0.0:9000",
+		MaxAge: 0,
+	}, s.conn.Cookie().PersistCookie(ctx, satoriuuid.NewV4().String(), cid)
+}

@@ -1,0 +1,25 @@
+package service
+
+import (
+	"test-assignment-cookie-sync/connector"
+)
+
+const SYNC = "sync"
+
+type Sync struct {
+	name string
+	conn connector.DB
+}
+
+func New(name string, conn connector.DB) *Sync {
+	switch name {
+	case SYNC:
+		return &Sync{name: SYNC, conn: conn}
+	default:
+		return nil
+	}
+}
+
+func (s *Sync) Test() {
+	s.conn.Impl("cookie").Test("loh")
+}

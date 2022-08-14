@@ -1,0 +1,7 @@
+package service
+
+type sync connector.DB
+
+func NewSync(name string, conn connector.DB) sync {
+     return sync{conn} 
+}

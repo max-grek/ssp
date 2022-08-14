@@ -1,0 +1,8 @@
+package cookie
+
+import "test-assignment-cookie-sync/connector/cookie/internal/query"
+
+type CookieQTX struct {
+	query.CookieQueries
+	tx.CookieTxs
+}
